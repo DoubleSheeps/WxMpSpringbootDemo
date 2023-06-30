@@ -75,7 +75,7 @@ public class TreeUtils {
     public static <T extends TreeNode<?>> List<T> getLeaves(T parent) {
         List<T> leaves = new ArrayList<>();
 
-        fillLeaf(parent, leaves);
+        fillLeaf(parent, leaves,0);
         return leaves;
     }
 
@@ -86,6 +86,17 @@ public class TreeUtils {
      * @param leaves 叶子结点列表
      * @param <T>    实际 节点类型
      */
-    private static <T extends TreeNode> void fillLeaf(T parent, List<T> leaves) {
+    private static <T extends TreeNode> void fillLeaf(T parent, List<T> leaves,int n) {
+        if(parent.getChildren()==null){
+            if(n<3){
+                return;
+            }
+            leaves.add(parent);
+            return;
+        }
+        List<T> child = parent.getChildren();
+        for (T node:child){
+            fillLeaf(node,leaves,n+1);
+        }
     }
 }

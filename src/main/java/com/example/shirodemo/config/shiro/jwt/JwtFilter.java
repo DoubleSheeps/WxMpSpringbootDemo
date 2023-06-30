@@ -22,6 +22,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * JWT过滤
@@ -189,15 +191,18 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
      */
     private void response401(ServletResponse response, String msg) {
         HttpServletResponse httpServletResponse = WebUtils.toHttp(response);
-        httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
+        httpServletResponse.setStatus(HttpStatus.OK.value());
         httpServletResponse.setCharacterEncoding("UTF-8");
         httpServletResponse.setContentType("application/json; charset=utf-8");
         try (PrintWriter out = httpServletResponse.getWriter()) {
-            String data = JsonConvertUtil.objectToJson(CommonReturnType.create(CommonReturnType.STATUS_FAIL, EmBusinessError.USER_UNAUTHORIZED.setErrMsg(msg)));
+            Map<String, Object> returnData = new HashMap<>();
+            returnData.put("errCode", EmBusinessError.USER_UNAUTHORIZED.getErrCode());
+            returnData.put("errMsg", msg);
+            String data = JsonConvertUtil.objectToJson(CommonReturnType.create(CommonReturnType.STATUS_FAIL, returnData));
             out.append(data);
         } catch (IOException e) {
             logger.error("直接返回Response信息出现IOException异常:{}", e.getMessage());
-            throw new BusinessException(EmBusinessError.UNKNOWN_ERROR.setErrMsg("直接返回Response信息出现IOException异常:" + e.getMessage()));
+            throw new BusinessException(EmBusinessError.UNKNOWN_ERROR,"直接返回Response信息出现IOException异常:" + e.getMessage());
         }
     }
 }

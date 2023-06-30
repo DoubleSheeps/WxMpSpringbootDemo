@@ -1,6 +1,8 @@
 package com.example.shirodemo.controller;
 
+import com.example.shirodemo.Utils.TreeUtils;
 import com.example.shirodemo.controller.VO.PermParam;
+import com.example.shirodemo.controller.VO.Permission;
 import com.example.shirodemo.controller.VO.RoleParam;
 import com.example.shirodemo.model.RoleModel;
 import com.example.shirodemo.model.common.CommonReturnType;
@@ -12,6 +14,7 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RequestMapping("/role")
@@ -52,7 +55,19 @@ public class RoleController {
     @GetMapping("/perm/ids/{roleId}")
     @RequiresPermissions(logical = Logical.AND,value = {"role:view"})
     public CommonReturnType permKeys(@PathVariable(value = "roleId")Integer roleId){
-        return CommonReturnType.create(roleService.permissionIdList(roleId));
+        List<Permission> permissionList = roleService.permissionList(roleId);
+        System.out.println();
+        System.out.println(permissionList.get(0).toString());
+        System.out.println();
+        List<Permission> leaf = TreeUtils.getLeaves(permissionList.get(0));
+        System.out.println();
+        System.out.println(leaf.toString());
+        System.out.println();
+        List<Integer> permissionIdList = new ArrayList<>();
+        for (Permission permission:leaf){
+            permissionIdList.add(permission.getId());
+        }
+        return CommonReturnType.create(permissionIdList);
     }
 
     @GetMapping("/perm/all/{roleId}")

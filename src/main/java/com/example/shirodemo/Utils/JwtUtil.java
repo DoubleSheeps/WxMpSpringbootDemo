@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.shirodemo.error.BusinessException;
 import com.example.shirodemo.error.EmBusinessError;
@@ -66,7 +67,10 @@ public class JwtUtil {
             return true;
         } catch (UnsupportedEncodingException e) {
             logger.error("JWTToken认证解密出现UnsupportedEncodingException异常:{}", e.getMessage());
-            throw new BusinessException(EmBusinessError.UNKNOWN_ERROR.setErrMsg("JWTToken认证解密出现UnsupportedEncodingException异常:" + e.getMessage()));
+            throw new BusinessException(EmBusinessError.UNKNOWN_ERROR,"JWTToken认证解密出现UnsupportedEncodingException异常:" + e.getMessage());
+        } catch (JWTVerificationException e){
+            logger.error("JWTToken认证解密出现JWTVerificationException异常:{}", e.getMessage());
+            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR,"JWTToken认证解密出现JWTVerificationException异常:" + e.getMessage());
         }
     }
 
@@ -85,7 +89,7 @@ public class JwtUtil {
             return jwt.getClaim(claim).asString();
         } catch (JWTDecodeException e) {
             logger.error("解密Token中的公共信息出现JWTDecodeException异常:{}", e.getMessage());
-            throw new BusinessException(EmBusinessError.UNKNOWN_ERROR.setErrMsg("解密Token中的公共信息出现JWTDecodeException异常:" + e.getMessage()));
+            throw new BusinessException(EmBusinessError.UNKNOWN_ERROR,"解密Token中的公共信息出现JWTDecodeException异常:" + e.getMessage());
         }
     }
 
@@ -111,7 +115,7 @@ public class JwtUtil {
                     .sign(algorithm);
         } catch (UnsupportedEncodingException e) {
             logger.error("JWTToken加密出现UnsupportedEncodingException异常:{}", e.getMessage());
-            throw new BusinessException(EmBusinessError.UNKNOWN_ERROR.setErrMsg("JWTToken加密出现UnsupportedEncodingException异常:" + e.getMessage()));
+            throw new BusinessException(EmBusinessError.UNKNOWN_ERROR,"JWTToken加密出现UnsupportedEncodingException异常:" + e.getMessage());
         }
     }
 }

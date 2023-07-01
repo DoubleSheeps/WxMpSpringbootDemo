@@ -106,6 +106,12 @@ public class UserRealm extends AuthorizingRealm {
         throw new AuthenticationException("Token已过期(Token expired or incorrect.)");
     }
 
+    /**
+     * 根据用户id清除缓存中的信息
+     * 主要在修改用户权限时，需要清除用户之前的缓存信息
+     * @param id 用户id
+     */
+
     public void clearAuthCacheByUserId(Integer id){
         UserDO userDO = userMapper.selectByPrimaryKey(id);
         if(userDO!=null){

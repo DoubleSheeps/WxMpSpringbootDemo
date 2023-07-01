@@ -70,6 +70,13 @@ public class RoleController {
         return CommonReturnType.create(permissionIdList);
     }
 
+    @GetMapping("/perm/ids/all/{roleId}")
+    @RequiresPermissions(logical = Logical.AND,value = {"role:view"})
+    public CommonReturnType permAllKeys(@PathVariable(value = "roleId")Integer roleId){
+        List<Integer> permissionIdList = roleService.permissionIdList(roleId);
+        return CommonReturnType.create(permissionIdList);
+    }
+
     @GetMapping("/perm/all/{roleId}")
     @RequiresPermissions(logical = Logical.AND,value = {"role:perm"})
     public CommonReturnType permList(@PathVariable(value = "roleId")Integer roleId){

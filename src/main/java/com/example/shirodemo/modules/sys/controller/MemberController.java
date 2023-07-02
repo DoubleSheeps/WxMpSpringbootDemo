@@ -32,7 +32,13 @@ public class MemberController {
     @GetMapping("/template")
 //    @RequiresPermissions("wx:msgtemplate:list")
     public CommonReturnType listTemplate() throws WxErrorException {
-        return CommonReturnType.create(templateMessageService.syncWxTemplate());
+        return CommonReturnType.create(templateMessageService.getWxTemplateList());
+    }
+    @GetMapping("/aync/template")
+//    @RequiresPermissions("wx:msgtemplate:list")
+    public CommonReturnType ayncTemplate() throws WxErrorException {
+        templateMessageService.syncWxTemplate();
+        return CommonReturnType.create("同步模板中，请稍后刷新页面！");
     }
     @GetMapping("/activity")
 //    @RequiresPermissions("wx:msgtemplate:list")

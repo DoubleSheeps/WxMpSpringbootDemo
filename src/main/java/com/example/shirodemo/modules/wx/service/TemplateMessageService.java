@@ -22,7 +22,9 @@ public interface TemplateMessageService {
     void sendClassTipMessage(WxMpUser userWxInfo) throws WxErrorException;
 
     //获取模板
-    List<MsgTemplate> syncWxTemplate() throws WxErrorException;
+    List<MsgTemplate> getWxTemplateList();
+
+    void syncWxTemplate() throws WxErrorException;
 
     List<TemplateDOWithBLOBs> list();
 

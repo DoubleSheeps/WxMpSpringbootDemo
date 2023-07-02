@@ -3,7 +3,9 @@ package com.example.shirodemo.modules.wx.service.impl;
 import com.example.shirodemo.model.MsgTemplate;
 import com.example.shirodemo.modules.sys.controller.VO.ActivityForm;
 import com.example.shirodemo.modules.sys.dao.TemplateDOMapper;
+import com.example.shirodemo.modules.sys.dao.TemplateInfoDOMapper;
 import com.example.shirodemo.modules.sys.dataobject.TemplateDOWithBLOBs;
+import com.example.shirodemo.modules.sys.dataobject.TemplateInfoDO;
 import com.example.shirodemo.modules.wx.config.WxMpProperties;
 import com.example.shirodemo.modules.wx.service.TemplateMessageService;
 import me.chanjar.weixin.common.error.WxErrorException;
@@ -12,6 +14,7 @@ import me.chanjar.weixin.mp.bean.result.WxMpUser;
 import me.chanjar.weixin.mp.bean.template.WxMpTemplate;
 import me.chanjar.weixin.mp.bean.template.WxMpTemplateData;
 import me.chanjar.weixin.mp.bean.template.WxMpTemplateMessage;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -35,6 +38,8 @@ public class TemplateMessageServiceImpl implements TemplateMessageService {
     private WxMpService wxMpService;
     @Autowired
     private TemplateDOMapper templateDOMapper;
+    @Autowired
+    private TemplateInfoDOMapper templateInfoDOMapper;
     @Override
     public void sendBindMessage( WxMpUser userWxInfo) throws WxErrorException {
         if (userWxInfo != null) {
@@ -65,10 +70,17 @@ public class TemplateMessageServiceImpl implements TemplateMessageService {
         }
     }
 
+    public List<MsgTemplate> getWxTemplateList(){
+        List<TemplateInfoDO> templateInfoDOList = templateInfoDOMapper.getAll();
+        return templateInfoDOList.stream().map(this::copy).collect(Collectors.toList());
+    }
+
     @Override
-    public List<MsgTemplate> syncWxTemplate() throws WxErrorException {
+    public void syncWxTemplate() throws WxErrorException {
         List<WxMpTemplate> wxMpTemplateList= wxMpService.getTemplateMsgService().getAllPrivateTemplate();
-        return wxMpTemplateList.stream().map(item->new MsgTemplate(item,properties.getConfigs().get(0).getAppId())).collect(Collectors.toList());
+        for(WxMpTemplate wxMpTemplate:wxMpTemplateList){
+            saveOrUpdate(wxMpTemplate);
+        }
     }
     @Override
     public List<TemplateDOWithBLOBs> list(){
@@ -86,6 +98,35 @@ public class TemplateMessageServiceImpl implements TemplateMessageService {
         templateDOWithBLOBs.setTitle(form.getTitle());
         templateDOWithBLOBs.setUpdateTime(new Date());
         templateDOMapper.insertSelective(templateDOWithBLOBs);
+    }
+
+    public void saveOrUpdate(WxMpTemplate wxMpTemplate){
+        TemplateInfoDO templateInfoDO1 = templateInfoDOMapper.selectByPrimaryKey(wxMpTemplate.getTemplateId());
+        if(templateInfoDO1==null){
+            TemplateInfoDO templateInfoDO = new TemplateInfoDO();
+            templateInfoDO.setTemplateId(wxMpTemplate.getTemplateId());
+            templateInfoDO.setTitle(wxMpTemplate.getTitle());
+            templateInfoDO.setPrimaryIndustry(wxMpTemplate.getPrimaryIndustry());
+            templateInfoDO.setDeputyIndustry(wxMpTemplate.getDeputyIndustry());
+            templateInfoDO.setContent(wxMpTemplate.getContent());
+            templateInfoDOMapper.insertSelective(templateInfoDO);
+        }else {
+            templateInfoDO1.setTemplateId(wxMpTemplate.getTemplateId());
+            templateInfoDO1.setTitle(wxMpTemplate.getTitle());
+            templateInfoDO1.setPrimaryIndustry(wxMpTemplate.getPrimaryIndustry());
+            templateInfoDO1.setDeputyIndustry(wxMpTemplate.getDeputyIndustry());
+            templateInfoDO1.setContent(wxMpTemplate.getContent());
+            templateInfoDOMapper.updateByPrimaryKeySelective(templateInfoDO1);
+        }
+    }
+
+    MsgTemplate copy(TemplateInfoDO templateInfoDO){
+        if(templateInfoDO==null){
+            return null;
+        }
+        MsgTemplate msgTemplate = new MsgTemplate();
+        BeanUtils.copyProperties(templateInfoDO,msgTemplate);
+        return msgTemplate;
     }
 
 }

@@ -1,6 +1,7 @@
-# ShiroDemo
-学习Shiro框架的demo
+# WxMpDemo
 
-具体学习笔记可以查看我的博客-[Shiro笔记](https://youngsheep.fun/2023/06/30/Shiro/)
+学习WxMp开发框架的demo
 
-数据库sql文件放在resource的sql文件夹中
+这是在之前学习Shiro项目的基础上开发的，因此连项目名都懒得改（hahahaha）
+
+其实是不想管理这个项目的结构，但又不想让之前的shiro项目变得很难看懂，所以新建了个仓库

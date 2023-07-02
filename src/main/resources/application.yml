@@ -1,3 +1,18 @@
+wx:
+    mp:
+        testUrl: http://ddirj2.natappfree.cc
+        webUrl:  http://j58bif.natappfree.cc
+        useRedis: true
+        redisConfig:
+            host: 127.0.0.1
+            port: 6379
+            password:
+            timeout:
+        configs:
+            - appId: wxb8dd95b79f289855 # 第一个公众号的appid
+              secret: 151c8ad225aff64850a0f4b7f02f209b # 公众号的appsecret
+              token: robot # 接口配置里的Token值
+            # aesKey: 111 接口配置里的EncodingAESKey值
 spring:
     main:
         allow-bean-definition-overriding: true
@@ -24,17 +39,20 @@ spring:
             # 打开PSCache，并且指定每个连接上PSCache的大小
             pool-prepared-statements: true
             max-pool-prepared-statement-per-connection-size: 20
-    # 404交给异常处理器处理
+
     mvc:
-        throw-exception-if-no-handler-found: true
-    # 404交给异常处理器处理
+        # 404交给异常处理器处理
+        #throw-exception-if-no-handler-found: true
     resources:
-        add-mappings: false
+        # 404交给异常处理器处理
+        #add-mappings: false
+
 mybatis:
     mapper-locations: classpath:mapping/*.xml
 server:
-    port: 8090
+    port: 8080
+
 logging:
     # Debug打印SQL
     level:
-        com.example.shirodemo.dao: debug
+      com.example.shirodemo.modules.sys.dao: debug

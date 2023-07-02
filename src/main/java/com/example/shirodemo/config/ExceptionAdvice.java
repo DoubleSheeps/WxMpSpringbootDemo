@@ -93,7 +93,7 @@ public class ExceptionAdvice {
     @ExceptionHandler(BusinessException.class)
     public CommonReturnType handle401(BusinessException e) {
         responseData.put("errCode",e.getErrCode());
-        responseData.put("errMsg", e.getMessage());
+        responseData.put("errMsg", e.getErrMsg());
         return CommonReturnType.create(CommonReturnType.STATUS_FAIL, responseData);
     }
 

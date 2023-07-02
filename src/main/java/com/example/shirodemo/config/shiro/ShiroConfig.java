@@ -89,8 +89,10 @@ public class ShiroConfig {
         // filterChainDefinitionMap.put("/api/**", "anon");
         // 登录接口放开
         filterChainDefinitionMap.put("/user/login", "anon");
+        filterChainDefinitionMap.put("/wx", "anon");
         // 所有请求通过我们自己的JWTFilter
-        filterChainDefinitionMap.put("/**", "jwt");
+        filterChainDefinitionMap.put("/api/**", "jwt");
+        filterChainDefinitionMap.put("/**", "anon");
         factoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         return factoryBean;
     }

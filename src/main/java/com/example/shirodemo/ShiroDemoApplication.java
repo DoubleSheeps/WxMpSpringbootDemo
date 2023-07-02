@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @SpringBootApplication(scanBasePackages = {"com.example.shirodemo"})
 @RestController
-@MapperScan("com.example.shirodemo.dao")
+@MapperScan("com.example.shirodemo.modules.sys.dao")
 public class ShiroDemoApplication {
 
     private static final Logger logger = LoggerFactory.getLogger(ShiroDemoApplication.class);

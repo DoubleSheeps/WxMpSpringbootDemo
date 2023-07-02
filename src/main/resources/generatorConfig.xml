@@ -12,7 +12,7 @@
                         password="root">
         </jdbcConnection>
         <!--生成DataObject类存放位置-->
-        <javaModelGenerator targetPackage="com.example.shirodemo.dataobject"
+        <javaModelGenerator targetPackage="com.example.shirodemo.modules.sys.dataobject"
                             targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
             <property name="trimStrings" value="true"/>
@@ -23,17 +23,17 @@
             <property name="enableSubPackages" value="true"/>
         </sqlMapGenerator>
         <!--生成Dao类存放位置-->
-        <javaClientGenerator type="XMLMAPPER" targetPackage="com.example.shirodemo.dao"  targetProject="src/main/java">
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.example.shirodemo.modules.sys.dao" targetProject="src/main/java">
             <property name="enableSubPackages" value="true" />
         </javaClientGenerator>
 
         <!--生成对应表及类名-->
-        <table tableName="user_info" catalog="test" domainObjectName="UserDO" enableCountByExample="false"
+        <table tableName="member_info" catalog="test" domainObjectName="MemberDO" enableCountByExample="false"
                enableUpdateByExample="false" enableDeleteByExample="false"
                enableSelectByExample="false" selectByExampleQueryId="false">
             <property name="ignoreQualifiersAtRuntime" value="true"/>
         </table>
-        <!--<table tableName="user_role" catalog="test" domainObjectName="UserRoleDO" enableCountByExample="false"
+        <!--<table tableName="msg_template" catalog="test" domainObjectName="TemplateDO" enableCountByExample="false"
                enableUpdateByExample="false" enableDeleteByExample="false"
                enableSelectByExample="false" selectByExampleQueryId="false">
             <property name="ignoreQualifiersAtRuntime" value="true"/>

@@ -1,12 +1,10 @@
 package com.example.shirodemo.Utils;
 
-import com.example.shirodemo.dao.UserDOMapper;
-import com.example.shirodemo.dataobject.UserDO;
 import com.example.shirodemo.error.BusinessException;
 import com.example.shirodemo.error.EmBusinessError;
 import com.example.shirodemo.model.UserModel;
 import com.example.shirodemo.model.common.Constant;
-import com.example.shirodemo.service.UserService;
+import com.example.shirodemo.modules.sys.service.UserService;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

@@ -57,9 +57,9 @@
     course_info.name, course_date_info.start_time, user_info.name, course_date_info.place, course_date_info.end_time , student_info.name
     from course_date_info , course_student , student_info , course_info , user_info
     where course_date_info.start_time between #{date1,jdbcType=TIMESTAMP} and #{date2,jdbcType=TIMESTAMP}
-    and course_date_info.course_id = course_student.course_id
+    and course_date_info.id = course_student.course_id
     and course_info.id = course_date_info.course_id
-    and user_info.id = course_date_info.teacher_id
+    and user_info.uid = course_date_info.teacher_id
     and course_student.student_id = student_info.id
     and student_info.openId = #{openid,jdbcType=VARCHAR}
   </select>

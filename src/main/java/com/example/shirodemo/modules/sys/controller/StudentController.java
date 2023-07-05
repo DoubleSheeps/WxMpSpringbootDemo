@@ -22,7 +22,7 @@ public class StudentController {
     private final StudentService studentService;
 
     @GetMapping("/list")
-    @RequiresPermissions("exp:user")
+    @RequiresPermissions(logical = Logical.OR ,value = {"exp:user","class:add"})
     public CommonReturnType list(){
         return CommonReturnType.create(studentService.list());
     }

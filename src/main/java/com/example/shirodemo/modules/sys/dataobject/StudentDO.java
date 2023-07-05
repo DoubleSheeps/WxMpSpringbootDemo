@@ -198,4 +198,16 @@ public class StudentDO {
     public void setOpenid(String openid) {
         this.openid = openid == null ? null : openid.trim();
     }
+
+    @Override
+    public String toString() {
+        return "StudentDO{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", age=" + age +
+                ", phone='" + phone + '\'' +
+                ", sub=" + sub +
+                ", openid='" + openid + '\'' +
+                '}';
+    }
 }

@@ -1,18 +1,11 @@
 wx:
     mp:
-        testUrl: http://ddirj2.natappfree.cc
-        webUrl:  http://j58bif.natappfree.cc
-        useRedis: true
-        redisConfig:
-            host: 127.0.0.1
-            port: 6379
-            password:
-            timeout:
-        configs:
-            - appId: wxb8dd95b79f289855 # 第一个公众号的appid
-              secret: 151c8ad225aff64850a0f4b7f02f209b # 公众号的appsecret
-              token: robot # 接口配置里的Token值
-            # aesKey: 111 接口配置里的EncodingAESKey值
+        testUrl: http://w23ykg.natappfree.cc
+        webUrl: http://4tdzsg.natappfree.cc
+        appId: wxb8dd95b79f289855 # 公众号的appid
+        secret: 151c8ad225aff64850a0f4b7f02f209b # 公众号的appsecret
+        token: robot # 接口配置里的Token值
+        # aesKey: 111 接口配置里的EncodingAESKey值
 spring:
     main:
         allow-bean-definition-overriding: true

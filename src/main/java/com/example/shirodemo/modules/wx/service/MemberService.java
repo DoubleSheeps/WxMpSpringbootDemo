@@ -31,7 +31,11 @@ public class MemberService {
 
     private volatile static  boolean syncWxUserTaskRunning=false;
 
-    public List<MemberDO> syncWxUsers(){
+    public List<MemberDO> getAll(){
+        return memberDOMapper.selectAll();
+    }
+
+    public void syncWxUsers(){
         //同步较慢，防止个多线程重复执行同步任务
         Assert.isTrue(!syncWxUserTaskRunning,"后台有同步任务正在进行中，请稍后重试");
         syncWxUserTaskRunning=true;
@@ -55,7 +59,6 @@ public class MemberService {
             syncWxUserTaskRunning=false;
         }
         logger.info("同步公众号粉丝列表：完成");
-        return memberDOMapper.selectAll();
     }
 
     public void syncWxUsers(List<String> openids) {
@@ -75,7 +78,7 @@ public class MemberService {
                 try {
                     wxMpUsers = wxMpUserService.userInfoList(subOpenids);
                 } catch (WxErrorException e) {
-                    logger.error("同步出错，批次：【{}--{}-{}】，错误信息：{}",batch, finalStart, finalEnd,e);
+                    logger.error("同步出错，批次：【{}--{}-{}】，错误信息：{}",batch, finalStart, finalEnd,e.getError().getErrorMsg());
                 }
                 if(wxMpUsers!=null && !wxMpUsers.isEmpty()){
                     List<MemberDO> wxUsers=wxMpUsers.parallelStream().map(item->this.copy(new WxUser(item))).collect(Collectors.toList());
@@ -146,7 +149,6 @@ public class MemberService {
 
     public void tagging(Long tagid, String openid) throws WxErrorException {
         wxMpService.getUserTagService().batchTagging(tagid,new String[]{openid});
-        String appid = WxMpConfigStorageHolder.get();
         refreshUserInfo(openid);
     }
 

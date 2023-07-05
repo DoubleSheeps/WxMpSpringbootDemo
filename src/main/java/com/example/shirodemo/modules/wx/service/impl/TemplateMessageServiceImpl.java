@@ -1,9 +1,14 @@
 package com.example.shirodemo.modules.wx.service.impl;
 
+import com.example.shirodemo.config.TaskExcutor;
+import com.example.shirodemo.error.BusinessException;
+import com.example.shirodemo.error.EmBusinessError;
 import com.example.shirodemo.model.MsgTemplate;
 import com.example.shirodemo.modules.sys.controller.VO.ActivityForm;
+import com.example.shirodemo.modules.sys.controller.VO.TemplateMsgBatchForm;
 import com.example.shirodemo.modules.sys.dao.TemplateDOMapper;
 import com.example.shirodemo.modules.sys.dao.TemplateInfoDOMapper;
+import com.example.shirodemo.modules.sys.dataobject.MemberDO;
 import com.example.shirodemo.modules.sys.dataobject.TemplateDOWithBLOBs;
 import com.example.shirodemo.modules.sys.dataobject.TemplateInfoDO;
 import com.example.shirodemo.modules.wx.config.WxMpProperties;
@@ -14,13 +19,15 @@ import me.chanjar.weixin.mp.bean.result.WxMpUser;
 import me.chanjar.weixin.mp.bean.template.WxMpTemplate;
 import me.chanjar.weixin.mp.bean.template.WxMpTemplateData;
 import me.chanjar.weixin.mp.bean.template.WxMpTemplateMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -30,8 +37,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class TemplateMessageServiceImpl implements TemplateMessageService {
-    @Value("${wx.mp.webUrl}")
-    private String URL;
+    Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private WxMpProperties properties;
     @Autowired
@@ -47,7 +53,7 @@ public class TemplateMessageServiceImpl implements TemplateMessageService {
             WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
                 .toUser(userWxInfo.getOpenId())
                 .templateId("VBtVEzA4kC8PU7cu8q21YkC3gYt-KzCVAM3sveaVobw")
-                .url(URL+"/#/bindUserInfo")
+                .url(properties.getWebUrl()+"/#/bindUserInfo?url="+properties.getTestUrl())
                 .build();
             wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);
         }
@@ -58,16 +64,61 @@ public class TemplateMessageServiceImpl implements TemplateMessageService {
         if (userWxInfo != null) {
             WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
                 .toUser(userWxInfo.getOpenId())
-                .templateId("BlpfUyYyGgW2dSkvCcU-WwvnW8SYzoLysXxRFL0PUCw")
-                .url(URL + "/#/timetable")
+                .templateId("iuyjmbFX8YBgZc8bas-9yjZohj5QyH9XsrqYCwAXyb4")
+                .url(properties.getWebUrl() + "/#/timetable?openid="+userWxInfo.getOpenId())
                 .build();
-            templateMessage.addData(new WxMpTemplateData("name", userWxInfo.getRemark()));
-            templateMessage.addData(new WxMpTemplateData("course", "少儿编程"));
-            templateMessage.addData(new WxMpTemplateData("time", "2023-06-18 10:00~12:00"));
-            templateMessage.addData(new WxMpTemplateData("place", "中科大先研院A404"));
-
             wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);
         }
+    }
+
+    public void sendClassTipMessage(String openid,String name,String course,String time,String place) {
+        TaskExcutor.submit(()->{//使用线程池发送模板，否则大量课前提醒需要发送时会很慢
+            WxMpTemplateMessage templateMessage = WxMpTemplateMessage.builder()
+                    .toUser(openid)
+                    .templateId("BlpfUyYyGgW2dSkvCcU-WwvnW8SYzoLysXxRFL0PUCw")
+                    .url(properties.getWebUrl() + "/#/timetable?openid="+openid)
+                    .build();
+            templateMessage.addData(new WxMpTemplateData("name", name));
+            templateMessage.addData(new WxMpTemplateData("course", course));
+            templateMessage.addData(new WxMpTemplateData("time", time));
+            templateMessage.addData(new WxMpTemplateData("place", place));
+            logger.info("发送课前提醒：{}",templateMessage.toJson());
+            try {
+                wxMpService.getTemplateMsgService().sendTemplateMsg(templateMessage);
+            } catch (WxErrorException e) {
+                logger.error("发送课前提醒失败，原因：{}",e.getError().getErrorMsg());
+            }
+        });
+    }
+
+    @Async
+    public void sendMsgBatch(TemplateMsgBatchForm form) {
+        logger.info("批量发送模板消息任务开始,参数：{}",form.toString());
+        WxMpTemplateMessage.WxMpTemplateMessageBuilder builder = WxMpTemplateMessage.builder()
+                .templateId(form.getTemplateId())
+                .url(form.getUrl())
+                .data(form.getData());
+        List<String> openids = form.getOpenids();
+        if(openids==null) {
+            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR,"用户openid数组有误！");
+        }
+        openids.forEach(openid->{
+            WxMpTemplateMessage msg = builder.toUser(openid).build();
+            this.sendTemplateMsg(msg);
+        });
+        logger.info("批量发送模板消息任务结束");
+    }
+    @Async
+    public void sendTemplateMsg(WxMpTemplateMessage msg) {
+        String result;
+        try {
+            result = wxMpService.getTemplateMsgService().sendTemplateMsg(msg);
+        } catch (WxErrorException e) {
+            result = e.getMessage();
+        }
+        //保存发送日志
+//        TemplateMsgLog log = new TemplateMsgLog(msg,appid, result);
+//        templateMsgLogService.addLog(log);
     }
 
     public List<MsgTemplate> getWxTemplateList(){
@@ -97,6 +148,8 @@ public class TemplateMessageServiceImpl implements TemplateMessageService {
         templateDOWithBLOBs.setUrl(form.getUrl());
         templateDOWithBLOBs.setTitle(form.getTitle());
         templateDOWithBLOBs.setUpdateTime(new Date());
+        templateDOWithBLOBs.setStatus((byte)1);
+        templateDOWithBLOBs.setAppid(properties.getAppId());
         templateDOMapper.insertSelective(templateDOWithBLOBs);
     }
 

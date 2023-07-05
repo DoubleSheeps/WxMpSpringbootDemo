@@ -6,6 +6,7 @@ import com.example.shirodemo.model.WxUser;
 import com.example.shirodemo.model.common.CommonReturnType;
 import com.example.shirodemo.modules.sys.controller.VO.ActivityForm;
 import com.example.shirodemo.modules.sys.controller.VO.TagForm;
+import com.example.shirodemo.modules.sys.controller.VO.TemplateMsgBatchForm;
 import com.example.shirodemo.modules.sys.controller.VO.UserTagForm;
 import com.example.shirodemo.modules.sys.dao.TemplateDOMapper;
 import com.example.shirodemo.modules.wx.service.MemberService;
@@ -31,7 +32,7 @@ public class MemberController {
 
     @GetMapping("/template")
 //    @RequiresPermissions("wx:msgtemplate:list")
-    public CommonReturnType listTemplate() throws WxErrorException {
+    public CommonReturnType listTemplate(){
         return CommonReturnType.create(templateMessageService.getWxTemplateList());
     }
     @GetMapping("/aync/template")
@@ -42,7 +43,7 @@ public class MemberController {
     }
     @GetMapping("/activity")
 //    @RequiresPermissions("wx:msgtemplate:list")
-    public CommonReturnType listActivity() throws WxErrorException {
+    public CommonReturnType listActivity(){
         return CommonReturnType.create(templateMessageService.list());
     }
 
@@ -52,10 +53,22 @@ public class MemberController {
         return CommonReturnType.create("添加成功");
     }
 
+    @PostMapping("/activity/push")
+    public CommonReturnType pushActivity(@RequestBody TemplateMsgBatchForm form){
+        templateMessageService.sendMsgBatch(form);
+        return CommonReturnType.create("正在发送中，可在发送日志中查看进度。");
+    }
+
     @GetMapping("/list")
 //    @RequiresPermissions("wx:msgtemplate:list")
-    public CommonReturnType listMember() throws WxErrorException {
-        return CommonReturnType.create(memberService.syncWxUsers());
+    public CommonReturnType listMember()  {
+        return CommonReturnType.create(memberService.getAll());
+    }
+    @GetMapping("/aync")
+//    @RequiresPermissions("wx:msgtemplate:list")
+    public CommonReturnType ayncMember() throws WxErrorException {
+        memberService.syncWxUsers();
+        return CommonReturnType.create("同步中，请稍后刷新页面查看");
     }
 
     @GetMapping("/userTags/{openid}")

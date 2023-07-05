@@ -2,25 +2,19 @@ package com.example.shirodemo.modules.wx.config;
 
 import com.example.shirodemo.modules.wx.handler.*;
 import lombok.AllArgsConstructor;
-import me.chanjar.weixin.common.redis.JedisWxRedisOps;
 import me.chanjar.weixin.mp.api.WxMpMessageRouter;
 import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.api.impl.WxMpServiceImpl;
 import me.chanjar.weixin.mp.config.WxMpConfigStorage;
 import me.chanjar.weixin.mp.config.impl.WxMpDefaultConfigImpl;
-import me.chanjar.weixin.mp.config.impl.WxMpRedisConfigImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static me.chanjar.weixin.common.api.WxConsts.EventType;
 import static me.chanjar.weixin.common.api.WxConsts.EventType.SUBSCRIBE;
@@ -53,32 +47,26 @@ public class WxMpConfiguration {
     private final WxMpProperties properties;
 
 
-
-//    private static JedisPool jedisPool;
-
     @Bean
     public WxMpService wxMpService() {
-        //System.out.println(this.properties);
-        // 代码里 getConfigs()处报错的同学，请注意仔细阅读项目说明，你的IDE需要引入lombok插件！！！！
-        final List<WxMpProperties.MpConfig> configs = this.properties.getConfigs();
-        if (configs == null) {
+        if (properties == null) {
             throw new RuntimeException("大哥，拜托先看下项目首页的说明（readme文件），添加下相关配置，注意别配错了！");
         }
         WxMpService wxMpService =  new WxMpServiceImpl();
         wxMpService.setMaxRetryTimes(3);
         WxMpDefaultConfigImpl configStorage = new WxMpDefaultConfigImpl();
-        configStorage.setAppId(configs.get(0).getAppId());
-        configStorage.setSecret(configs.get(0).getSecret());
-        configStorage.setToken(configs.get(0).getToken());
-        configStorage.setAesKey(configs.get(0).getAesKey());
+        configStorage.setAppId(properties.getAppId());
+        configStorage.setSecret(properties.getSecret());
+        configStorage.setToken(properties.getToken());
+        configStorage.setAesKey(properties.getAesKey());
         try {
-            wxMpService.addConfigStorage(configs.get(0).getAppId(),configStorage);
+            wxMpService.addConfigStorage(properties.getAppId(),configStorage);
         }catch (NullPointerException e){
             Logger logger = LoggerFactory.getLogger(getClass());
             logger.info("需初始化configStorageMap...");
             Map<String, WxMpConfigStorage> configStorages = new HashMap<>(4);
-            configStorages.put(configs.get(0).getAppId(),configStorage);
-            wxMpService.setMultiConfigStorages(configStorages,configs.get(0).getAppId());
+            configStorages.put(properties.getAppId(),configStorage);
+            wxMpService.setMultiConfigStorages(configStorages,properties.getAppId());
         }
         return wxMpService;
     }

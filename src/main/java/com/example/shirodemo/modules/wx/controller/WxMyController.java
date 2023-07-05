@@ -2,7 +2,6 @@ package com.example.shirodemo.modules.wx.controller;
 
 import com.example.shirodemo.modules.sys.service.StudentService;
 import com.example.shirodemo.modules.wx.config.WxMpProperties;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.api.WxConsts;
@@ -11,7 +10,6 @@ import me.chanjar.weixin.common.bean.oauth2.WxOAuth2AccessToken;
 import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.result.WxMpUser;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,14 +33,12 @@ public class WxMyController {
 
     private final StudentService studentService;
 
-    @Value("${wx.mp.webUrl}")
-    private String URL;
 
     /**
      * 请求微信服务器认证授权
-     *
-     * @param phone 微信认证授权时的state参数
-     * @return
+     * 用户在页面填写需要绑定的信息（手机号）然后调用此接口，会构造一个请求微信服务器认证授权并携带需要绑定信息的超链接，进行重定向
+     * @param phone 绑定的手机号
+     * @return 重定向网址
      */
     @GetMapping("/authorize")
     public String authorize(@RequestParam("phone") String phone) {
@@ -57,9 +53,14 @@ public class WxMyController {
      * 认证授权成功后返回微信用户信息
      *
      * @param code      微信授权成功后重定向地址后的code参数
-     * @param returnUrl 请求微信授权时携带的state参数
      * @return
      * @throws Exception
+     */
+    /**
+     * 构造请求微信服务器认证授权超链接时需要微信服务器重定向的接口，微信服务器认证授权成功后会自动调用此接口并携带用户wxOAuth2AccessToken信息和之前传入的绑定信息
+     * @param code 构造用户wxOAuth2AccessToken信息的授权码
+     * @param phone 用户传入的绑定信息
+     * @return 重定向绑定之后的链接
      */
     @GetMapping("/userInfo")
     public String userInfo(@RequestParam("code") String code,
@@ -92,11 +93,10 @@ public class WxMyController {
             wxService.getOAuth2Service().refreshAccessToken(wxOAuth2AccessToken.getRefreshToken());
             // 验证accessToken是否有效
             wxService.getOAuth2Service().validateAccessToken(wxOAuth2AccessToken);
-            return "redirect:"+URL+"/#/bindSuccess?names="+URLEncoder.encode(remark);
+            return "redirect:"+properties.getWebUrl()+"/#/bindSuccess?names="+URLEncoder.encode(remark);
         }else {
             String msg = "没有找到孩子的信息，请确认填写的手机号是购买课程时留下的手机号";
-            return "redirect:"+URL+"/#/bindFail?msg="+URLEncoder.encode(msg);
+            return "redirect:"+properties.getWebUrl()+"/#/bindFail?msg="+URLEncoder.encode(msg);
         }
     }
-
 }

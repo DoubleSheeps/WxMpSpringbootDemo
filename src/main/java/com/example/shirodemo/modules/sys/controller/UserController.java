@@ -65,6 +65,12 @@ public class UserController {
         return CommonReturnType.create(userModelList);
     }
 
+    @GetMapping("/teacher")
+    @RequiresPermissions(logical = Logical.AND, value = {"class:add"})
+    public CommonReturnType teacher() {
+        return CommonReturnType.create(userService.teacherList());
+    }
+
     /**
      * 获取在线用户(查询Redis中的RefreshToken)
      * @param

@@ -77,6 +77,10 @@ public class UserService {
         List<UserDO> userDOList = userDOMapper.selectALL();
         return userDOList.stream().map(this::copy).collect(Collectors.toList());
     }
+    public List<UserModel> teacherList(){
+        return userDOMapper.selectTeacher();
+    }
+
 
     public List<RoleModel> roleListByUserId(Integer id){
         UserDO userDO = userDOMapper.selectByPrimaryKey(id);

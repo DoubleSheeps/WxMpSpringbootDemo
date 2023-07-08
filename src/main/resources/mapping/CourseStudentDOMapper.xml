@@ -30,6 +30,14 @@
     from course_student
     where id = #{id,jdbcType=INTEGER}
   </select>
+  <select id="getPrimaryKey" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+
+    select
+    id
+    from course_student
+    where course_id = #{courseId,jdbcType=INTEGER}
+    and student_id = #{studentId,jdbcType=INTEGER}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     <!--
       WARNING - @mbg.generated

@@ -139,12 +139,12 @@ public class MemberService {
         return wxMpService.getUserTagService().tagGet();
     }
 
-    public void creatTag(String name) throws WxErrorException {
-        wxMpService.getUserTagService().tagCreate(name);
+    public WxUserTag creatTag(String name) throws WxErrorException {
+        return wxMpService.getUserTagService().tagCreate(name);
     }
 
-    public void updateTag(Long tagid, String name) throws WxErrorException {
-        wxMpService.getUserTagService().tagUpdate(tagid,name);
+    public boolean updateTag(Long tagid, String name) throws WxErrorException {
+        return wxMpService.getUserTagService().tagUpdate(tagid,name);
     }
 
     public void tagging(Long tagid, String openid) throws WxErrorException {

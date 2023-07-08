@@ -8,13 +8,11 @@ import com.example.shirodemo.modules.sys.controller.VO.ActivityForm;
 import com.example.shirodemo.modules.sys.controller.VO.TagForm;
 import com.example.shirodemo.modules.sys.controller.VO.TemplateMsgBatchForm;
 import com.example.shirodemo.modules.sys.controller.VO.UserTagForm;
-import com.example.shirodemo.modules.sys.dao.TemplateDOMapper;
 import com.example.shirodemo.modules.wx.service.MemberService;
 import com.example.shirodemo.modules.wx.service.TemplateMessageService;
 import lombok.AllArgsConstructor;
 import me.chanjar.weixin.common.error.WxError;
 import me.chanjar.weixin.common.error.WxErrorException;
-import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.tag.WxUserTag;
 import org.springframework.web.bind.annotation.*;
 
@@ -66,7 +64,7 @@ public class MemberController {
     }
     @GetMapping("/aync")
 //    @RequiresPermissions("wx:msgtemplate:list")
-    public CommonReturnType ayncMember() throws WxErrorException {
+    public CommonReturnType ayncMember() {
         memberService.syncWxUsers();
         return CommonReturnType.create("同步中，请稍后刷新页面查看");
     }
@@ -117,11 +115,9 @@ public class MemberController {
     public CommonReturnType save(@Valid @RequestBody TagForm form) throws WxErrorException{
         Long tagid = form.getId();
         if(tagid==null || tagid<=0){
-            memberService.creatTag(form.getName());
+            return CommonReturnType.create(memberService.creatTag(form.getName()));
         }else {
-            memberService.updateTag(tagid,form.getName());
+            return CommonReturnType.create(memberService.updateTag(tagid,form.getName()));
         }
-        return CommonReturnType.create("保存成功！");
     }
-
 }

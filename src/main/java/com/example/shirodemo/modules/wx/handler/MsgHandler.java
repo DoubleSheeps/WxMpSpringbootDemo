@@ -2,6 +2,7 @@ package com.example.shirodemo.modules.wx.handler;
 
 import com.example.shirodemo.Utils.JsonUtils;
 import com.example.shirodemo.modules.wx.service.TemplateMessageService;
+import lombok.AllArgsConstructor;
 import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.common.session.WxSessionManager;
 import me.chanjar.weixin.mp.api.WxMpService;
@@ -20,9 +21,10 @@ import static me.chanjar.weixin.common.api.WxConsts.XmlMsgType;
  * @author <a href="https://github.com/binarywang">Binary Wang</a>
  */
 @Component
+@AllArgsConstructor
 public class MsgHandler extends AbstractHandler {
-    @Autowired
-    private TemplateMessageService templateMessageService;
+
+    private final TemplateMessageService templateMessageService;
 
     @Override
     public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
@@ -48,7 +50,7 @@ public class MsgHandler extends AbstractHandler {
                 WxMpUser userWxInfo = weixinService.getUserService()
                     .userInfo(wxMessage.getFromUser(), null);
                 templateMessageService.sendBindMessage(userWxInfo);
-            }else if(StringUtils.startsWithAny(wxMessage.getContent(), "课程", "上课")){
+            }else if(StringUtils.startsWithAny(wxMessage.getContent(), "课程", "上课","课表")){
                 WxMpUser userWxInfo = weixinService.getUserService()
                     .userInfo(wxMessage.getFromUser(), null);
                 templateMessageService.sendClassTipMessage(userWxInfo);

@@ -3,6 +3,7 @@ package com.example.shirodemo.modules.wx.service;
 import com.example.shirodemo.model.MsgTemplate;
 import com.example.shirodemo.modules.sys.controller.VO.ActivityForm;
 import com.example.shirodemo.modules.sys.controller.VO.TemplateMsgBatchForm;
+import com.example.shirodemo.modules.sys.dataobject.StudentDO;
 import com.example.shirodemo.modules.sys.dataobject.TemplateDOWithBLOBs;
 import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.mp.api.WxMpService;
@@ -26,7 +27,9 @@ public interface TemplateMessageService {
     void sendTemplateMsg(WxMpTemplateMessage msg);
 
     void sendMsgBatch(TemplateMsgBatchForm form);
-    void sendClassTipMessage(String openid,String name,String course,String time,String place);
+    void sendClassTipMessage(List<StudentDO> studentDOList, String course, String time, String place,String templateId);
+
+    void sendClassStatusMessage(String student,String teacher, String course, String time, String place,String status,String openId,Integer id);
 
     //获取模板
     List<MsgTemplate> getWxTemplateList();

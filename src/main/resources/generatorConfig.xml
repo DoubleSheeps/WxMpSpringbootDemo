@@ -28,7 +28,7 @@
         </javaClientGenerator>
 
         <!--生成对应表及类名-->
-        <table tableName="course_date_info" catalog="test" domainObjectName="CourseDateInfoDO" enableCountByExample="false"
+        <table tableName="course_student_info" catalog="test" domainObjectName="CourseStudentInfoDO" enableCountByExample="false"
                enableUpdateByExample="false" enableDeleteByExample="false"
                enableSelectByExample="false" selectByExampleQueryId="false">
             <property name="ignoreQualifiersAtRuntime" value="true"/>

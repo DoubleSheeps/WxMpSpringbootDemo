@@ -9,25 +9,44 @@ public class QuartzConfig {
 
 
     @Bean
-    JobDetailFactoryBean jobDetail2() {
-        JobDetailFactoryBean bean = new JobDetailFactoryBean();
-        bean.setJobClass(MyJob.class);
-        bean.setDurability(true);
+    MethodInvokingJobDetailFactoryBean  jobDetail() {
+        MethodInvokingJobDetailFactoryBean bean = new MethodInvokingJobDetailFactoryBean();
+        bean.setTargetBeanName("myJob");
+        bean.setTargetMethod("twoHoursClassTips");
         return bean;
     }
+
+    @Bean
+    MethodInvokingJobDetailFactoryBean  jobDetail2() {
+        MethodInvokingJobDetailFactoryBean bean = new MethodInvokingJobDetailFactoryBean();
+        bean.setTargetBeanName("myJob");
+        bean.setTargetMethod("oneDayClassTips");
+        return bean;
+    }
+
     @Bean
     CronTriggerFactoryBean cronTrigger() {
         CronTriggerFactoryBean bean = new CronTriggerFactoryBean ();
-        bean.setJobDetail(jobDetail2().getObject());
+        bean.setJobDetail(jobDetail().getObject());
         //早上6点到晚上8点每半个小时触发一次
-        bean.setCronExpression("0 0/30 6-20 * * ?");
+        bean.setCronExpression("0 0/10 6-20 * * ?");
+        return bean;
+    }
+
+    @Bean
+    CronTriggerFactoryBean cronTrigger2() {
+        CronTriggerFactoryBean bean = new CronTriggerFactoryBean ();
+        bean.setJobDetail(jobDetail2().getObject());
+        //晚上8点触发一次
+        bean.setCronExpression("0 30 16 * * ?");
         return bean;
     }
     @Bean
     SchedulerFactoryBean schedulerFactory() {
         SchedulerFactoryBean bean = new SchedulerFactoryBean();
         CronTrigger cronTrigger = cronTrigger().getObject();
-        bean.setTriggers(cronTrigger);
+        CronTrigger cronTrigger2 = cronTrigger2().getObject();
+        bean.setTriggers(cronTrigger,cronTrigger2);
         return bean;
     }
 }

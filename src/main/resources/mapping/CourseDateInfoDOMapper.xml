@@ -15,12 +15,12 @@
     <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
   </resultMap>
   <resultMap id="BaseResultMap2" type="com.example.shirodemo.modules.sys.dataobject.StudentCourseDateDO">
-    <result column="course_info.name" jdbcType="VARCHAR" property="course" />
+    <result column="name" jdbcType="VARCHAR" property="course" />
     <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
-    <result column="user_info.name" jdbcType="VARCHAR" property="teacher" />
+    <result column="teacher_name" jdbcType="VARCHAR" property="teacher" />
     <result column="place" jdbcType="VARCHAR" property="place" />
     <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
-    <result column="student.name" jdbcType="VARCHAR" property="student" />
+    <result column="student_name" jdbcType="VARCHAR" property="student" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--
@@ -54,7 +54,7 @@
   </select>
   <select id="selectByDateAndOpenid" resultMap="BaseResultMap2">
     select
-    course_info.name, course_date_info.start_time, user_info.name, course_date_info.place, course_date_info.end_time , student_info.name
+    course_info.name, course_date_info.start_time, user_info.name teacher_name, course_date_info.place, course_date_info.end_time , student_info.name student_name
     from course_date_info , course_student , student_info , course_info , user_info
     where course_date_info.start_time between #{date1,jdbcType=TIMESTAMP} and #{date2,jdbcType=TIMESTAMP}
     and course_date_info.id = course_student.course_id

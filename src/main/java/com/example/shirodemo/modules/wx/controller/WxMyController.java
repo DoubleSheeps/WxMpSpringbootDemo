@@ -5,6 +5,7 @@ import com.example.shirodemo.modules.wx.config.WxMpProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.api.WxConsts;
+import me.chanjar.weixin.common.bean.WxJsapiSignature;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 import me.chanjar.weixin.common.bean.oauth2.WxOAuth2AccessToken;
 import me.chanjar.weixin.common.error.WxErrorException;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.net.URLEncoder;
 
@@ -45,6 +47,15 @@ public class WxMyController {
         // 用户授权完成后的重定向链接，441aca54.ngrok.io为使用ngrok代理后的公网域名，该域名需要替换为在微信公众号后台设置的域名，否则请求微信服务器不成功，一般都是采用将本地服务代理映射到一个可以访问的公网进行开发调试
         String url = properties.getTestUrl()+"/wx/my/userInfo";
         String redirectURL = wxService.getOAuth2Service().buildAuthorizationUrl(url, WxConsts.OAuth2Scope.SNSAPI_USERINFO, URLEncoder.encode(phone));
+        log.info("【微信网页授权】获取code,redirectURL={}", redirectURL);
+        return "redirect:" + redirectURL;
+    }
+
+    @GetMapping("/zan")
+    public String zan(@RequestParam("id") String id) {
+        // 用户授权完成后的重定向链接，441aca54.ngrok.io为使用ngrok代理后的公网域名，该域名需要替换为在微信公众号后台设置的域名，否则请求微信服务器不成功，一般都是采用将本地服务代理映射到一个可以访问的公网进行开发调试
+        String url = properties.getTestUrl()+"/wx/my/userInfo2";
+        String redirectURL = wxService.getOAuth2Service().buildAuthorizationUrl(url, WxConsts.OAuth2Scope.SNSAPI_BASE, URLEncoder.encode(id));
         log.info("【微信网页授权】获取code,redirectURL={}", redirectURL);
         return "redirect:" + redirectURL;
     }
@@ -93,10 +104,53 @@ public class WxMyController {
             wxService.getOAuth2Service().refreshAccessToken(wxOAuth2AccessToken.getRefreshToken());
             // 验证accessToken是否有效
             wxService.getOAuth2Service().validateAccessToken(wxOAuth2AccessToken);
-            return "redirect:"+properties.getWebUrl()+"/#/bindSuccess?names="+URLEncoder.encode(remark);
+            return "redirect:"+properties.getWebUrl()+"/bindSuccess?names="+URLEncoder.encode(remark);
         }else {
             String msg = "没有找到孩子的信息，请确认填写的手机号是购买课程时留下的手机号";
-            return "redirect:"+properties.getWebUrl()+"/#/bindFail?msg="+URLEncoder.encode(msg);
+            return "redirect:"+properties.getWebUrl()+"/bindFail?msg="+URLEncoder.encode(msg);
         }
+    }
+
+    @GetMapping("/userInfo2")
+    public String userInfo2(@RequestParam("code") String code,
+                           @RequestParam("state") String id) throws Exception {
+        log.info("【微信网页授权】code={}", code);
+        log.info("【微信网页授权】id={}", id);
+
+        WxOAuth2AccessToken wxOAuth2AccessToken;
+        try {
+            // 获取accessToken
+            wxOAuth2AccessToken = wxService.getOAuth2Service().getAccessToken(code);
+        } catch (WxErrorException e) {
+            log.error("【微信网页授权】{}", e);
+            throw new Exception(e.getError().getErrorMsg());
+        }
+        // 根据accessToken获取openId
+        String openId = wxOAuth2AccessToken.getOpenId();
+        log.info("【微信网页授权】openId={}", openId);
+        String lang = "zh_CN"; //语言
+        WxMpUser user = wxService.getUserService().userInfo(openId,lang);
+        log.info("【微信网页授权】wxMpUser={}", user);
+        // 获取用户信息
+        WxOAuth2UserInfo wxUser = wxService.getOAuth2Service().getUserInfo(wxOAuth2AccessToken, null);
+        log.info("【微信网页授权】wxMpUser={}", wxUser);
+        // 刷新accessToken
+        wxService.getOAuth2Service().refreshAccessToken(wxOAuth2AccessToken.getRefreshToken());
+        // 验证accessToken是否有效
+        wxService.getOAuth2Service().validateAccessToken(wxOAuth2AccessToken);
+        return "redirect:"+properties.getWebUrl()+"/bindSuccess";
+    }
+
+    @GetMapping("/jsapi")
+    @ResponseBody
+    public WxJsapiSignature jsapi(@RequestParam("url") String url) throws WxErrorException {
+        System.out.println(wxService.getJsapiTicket(false));
+        return wxService.createJsapiSignature(url);
+    }
+
+    @GetMapping("/share")
+    @ResponseBody
+    public void share() {
+        System.out.println("share");
     }
 }

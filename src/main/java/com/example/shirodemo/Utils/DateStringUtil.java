@@ -61,4 +61,10 @@ public class DateStringUtil {
         return formatter.parse(tomorrow);
     }
 
+    public static Date getMinuteDate(Date date) throws ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        String minute = formatter.format(date);
+        return formatter.parse(minute);
+    }
+
 }

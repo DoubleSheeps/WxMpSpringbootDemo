@@ -1,6 +1,7 @@
 package com.example.shirodemo.modules.sys.controller;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.example.shirodemo.Utils.*;
 import com.example.shirodemo.config.shiro.UserRealm;
 import com.example.shirodemo.modules.sys.controller.VO.Permission;
@@ -11,7 +12,9 @@ import com.example.shirodemo.model.RoleModel;
 import com.example.shirodemo.model.UserModel;
 import com.example.shirodemo.model.common.CommonReturnType;
 import com.example.shirodemo.model.common.Constant;
+import com.example.shirodemo.modules.sys.dataobject.UserDO;
 import com.example.shirodemo.modules.sys.service.UserService;
+import io.swagger.annotations.Api;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
@@ -21,13 +24,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
+
+@Api(tags = "员工系统模块")
 @RestController
 @RequestMapping("/api/user")
-@PropertySource("classpath:config.properties")
+@PropertySource("classpath:config1.properties")
 public class UserController {
 
     /**
@@ -58,8 +64,8 @@ public class UserController {
     @GetMapping
     @RequiresPermissions(logical = Logical.AND, value = {"user:view"})
     public CommonReturnType user() {
-        List<UserModel> userModelList = userService.userList();
-        if (userModelList == null || userModelList.size() < 0) {
+        List<UserDO> userModelList = userService.list();
+        if (userModelList == null || userModelList.size() < 1) {
             throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR);
         }
         return CommonReturnType.create(userModelList);
@@ -110,11 +116,13 @@ public class UserController {
     @PostMapping("/login")
     public CommonReturnType login(@RequestBody UserModel userModel, HttpServletResponse httpServletResponse) {
         // 查询数据库中的帐号信息
-        UserModel userModelTemp  = userService.findByAccount(userModel.getAccount());
-        System.out.println(userModelTemp.toString());
-        if (userModelTemp == null) {
+        LambdaQueryWrapper<UserDO> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(UserDO::getAccount,userModel.getAccount());
+        List<UserDO> userDOList = userService.list(queryWrapper);
+        if (userDOList == null||userDOList.size()!=1) {
             throw new BusinessException(EmBusinessError.USER_NOT_EXIST);
         }
+        UserDO userModelTemp = userDOList.get(0);
         // 密码进行AES解密
         String key = AesCipherUtil.deCrypto(userModelTemp.getPassword());
         // 因为密码加密是以帐号+密码的形式进行加密的，所以解密后的对比是帐号+密码

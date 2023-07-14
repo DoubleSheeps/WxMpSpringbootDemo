@@ -46,7 +46,7 @@ public class CustomCache<K,V> implements Cache<K,V> {
     @Override
     public Object put(Object key, Object value) throws CacheException {
         // 读取配置文件，获取Redis的Shiro缓存过期时间
-        PropertiesUtil.readProperties("config.properties");
+        PropertiesUtil.readProperties("config1.properties");
         String shiroCacheExpireTime = PropertiesUtil.getProperty("shiroCacheExpireTime");
         // 设置Redis的Shiro缓存
         return JedisUtil.setObject(this.getKey(key), value, Integer.parseInt(shiroCacheExpireTime));

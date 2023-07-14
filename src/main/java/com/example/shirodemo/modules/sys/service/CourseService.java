@@ -1,5 +1,6 @@
 package com.example.shirodemo.modules.sys.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.example.shirodemo.Utils.DateStringUtil;
 import com.example.shirodemo.error.BusinessException;
 import com.example.shirodemo.error.EmBusinessError;
@@ -39,7 +40,9 @@ public class CourseService {
     public void courseSign(CourseSignForm form){
         Integer csId = courseStudentDOMapper.getPrimaryKey(form.getCourseDateId(), form.getStudentId());
         StudentDO studentDO = studentDOMapper.selectByPrimaryKey(form.getStudentId());
-        UserDO teacherDO = userDOMapper.selectByPrimaryKey(form.getTeacherId());
+        LambdaQueryWrapper<UserDO> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(UserDO::getUid,form.getTeacherId());
+        UserDO teacherDO = userDOMapper.selectOne(queryWrapper);
         if(csId==null||studentDO==null||teacherDO==null){
             throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR,"参数有误！");
         }
@@ -76,7 +79,9 @@ public class CourseService {
                 courseDateInfoDOS.forEach(courseDateInfoDO -> {
                     CourseDateInfo courseDateInfo = new CourseDateInfo();
                     CourseInfoDO courseInfoDO = courseInfoDOMapper.selectByPrimaryKey(courseDateInfoDO.getCourseId());
-                    UserDO userDO = userDOMapper.selectByPrimaryKey(courseDateInfoDO.getTeacherId());
+                    LambdaQueryWrapper<UserDO> queryWrapper = new LambdaQueryWrapper<>();
+                    queryWrapper.eq(UserDO::getUid,courseDateInfoDO.getTeacherId());
+                    UserDO userDO = userDOMapper.selectOne(queryWrapper);
                     List<StudentDO> studentDOList = studentDOMapper.selectByCourseId(courseDateInfoDO.getId());
                     courseDateInfo.setId(courseDateInfoDO.getId());
                     courseDateInfo.setPlace(courseDateInfoDO.getPlace());
@@ -90,7 +95,7 @@ public class CourseService {
                 courseDateList.setCourses(courseDateInfos);
             }
             courseDateLists.add(courseDateList);
-            start1 = DateStringUtil.getTomorrowDate(end1);
+            start1 = end1;
             end1 = DateStringUtil.getTomorrowDate(start1);
         }
         return courseDateLists;
@@ -114,7 +119,9 @@ public class CourseService {
         if(courseInfoDO==null){
             throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR,"课程不存在！");
         }
-        UserDO userDO = userDOMapper.selectByPrimaryKey(form.getTeacherId());
+        LambdaQueryWrapper<UserDO> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(UserDO::getUid,form.getTeacherId());
+        UserDO userDO = userDOMapper.selectOne(queryWrapper);
         if(userDO==null){
             throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR,"教师不存在！");
         }
@@ -160,7 +167,9 @@ public class CourseService {
         }
         CourseDateInfoDO courseDateInfoDO = courseDateInfoDOMapper.selectByPrimaryKey(courseStudentDO.getCourseId());
         CourseInfoDO courseInfoDO = courseInfoDOMapper.selectByPrimaryKey(courseDateInfoDO.getCourseId());
-        UserDO userDO = userDOMapper.selectByPrimaryKey(courseDateInfoDO.getTeacherId());
+        LambdaQueryWrapper<UserDO> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(UserDO::getUid,courseDateInfoDO.getTeacherId());
+        UserDO userDO = userDOMapper.selectOne(queryWrapper);
         CourseStatus courseStatus = new CourseStatus();
         courseStatus.setCourseDateId(courseDateInfoDO.getId());
         courseStatus.setStudent(studentDO.getName());

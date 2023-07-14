@@ -7,14 +7,16 @@ import com.example.shirodemo.modules.sys.controller.VO.RoleParam;
 import com.example.shirodemo.model.RoleModel;
 import com.example.shirodemo.model.common.CommonReturnType;
 import com.example.shirodemo.modules.sys.service.RoleService;
+import io.swagger.annotations.Api;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.ArrayList;
 import java.util.List;
-
+@Api(tags = "权限管理模块")
 @RequestMapping("/api/role")
 @RestController
 @CrossOrigin(

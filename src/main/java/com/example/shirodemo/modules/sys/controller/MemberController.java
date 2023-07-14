@@ -10,15 +10,17 @@ import com.example.shirodemo.modules.sys.controller.VO.TemplateMsgBatchForm;
 import com.example.shirodemo.modules.sys.controller.VO.UserTagForm;
 import com.example.shirodemo.modules.wx.service.MemberService;
 import com.example.shirodemo.modules.wx.service.TemplateMessageService;
+import io.swagger.annotations.Api;
 import lombok.AllArgsConstructor;
 import me.chanjar.weixin.common.error.WxError;
 import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.mp.bean.tag.WxUserTag;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
-import javax.validation.Valid;
 import java.util.List;
 
+@Api(tags = "会员模块")
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/member")
@@ -112,7 +114,7 @@ public class MemberController {
     }
 
     @PostMapping("/tag/save")
-    public CommonReturnType save(@Valid @RequestBody TagForm form) throws WxErrorException{
+    public CommonReturnType save(@RequestBody TagForm form) throws WxErrorException{
         Long tagid = form.getId();
         if(tagid==null || tagid<=0){
             return CommonReturnType.create(memberService.creatTag(form.getName()));

@@ -3,13 +3,15 @@ package com.example.shirodemo.modules.sys.controller;
 import com.example.shirodemo.model.common.CommonReturnType;
 import com.example.shirodemo.modules.sys.controller.VO.*;
 import com.example.shirodemo.modules.sys.service.CourseService;
+import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.text.ParseException;
 
-
+@Api(tags = "排课模块")
 @RestController
 @Slf4j
 @RequestMapping("/api/class")

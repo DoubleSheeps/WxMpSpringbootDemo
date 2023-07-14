@@ -62,6 +62,7 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
                     msg = "Token或者密钥不正确(" + throwable.getMessage() + ")";
                 } else if (throwable instanceof TokenExpiredException) {
                     // 该异常为JWT的AccessToken已过期，判断RefreshToken未过期就进行AccessToken刷新
+                    logger.debug("JWT的AccessToken已过期,{}", throwable.getMessage() );
                     if (this.refreshToken(request, response)) {
                         return true;
                     } else {
@@ -153,6 +154,7 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
      * 此处为AccessToken刷新，进行判断RefreshToken是否过期，未过期就返回新的AccessToken且继续正常访问
      */
     private boolean refreshToken(ServletRequest request, ServletResponse response) {
+        logger.debug("refreshToken...");
         // 拿到当前Header中Authorization的AccessToken(Shiro中getAuthzHeader方法已经实现)
         String token = this.getAuthzHeader(request);
         // 获取当前Token的帐号信息
@@ -166,8 +168,9 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
                 // 获取当前最新时间戳
                 String currentTimeMillis = String.valueOf(System.currentTimeMillis());
                 // 读取配置文件，获取refreshTokenExpireTime属性
-                PropertiesUtil.readProperties("config.properties");
+                PropertiesUtil.readProperties("config1.properties");
                 String refreshTokenExpireTime = PropertiesUtil.getProperty("refreshTokenExpireTime");
+                logger.debug("refreshTokenExpireTime:{}",refreshTokenExpireTime);
                 // 设置RefreshToken中的时间戳为当前最新时间戳，且刷新过期时间重新为30分钟过期(配置文件可配置refreshTokenExpireTime属性)
                 JedisUtil.setObject(Constant.PREFIX_SHIRO_REFRESH_TOKEN + account, currentTimeMillis, Integer.parseInt(refreshTokenExpireTime));
                 // 刷新AccessToken，设置时间戳为当前最新时间戳

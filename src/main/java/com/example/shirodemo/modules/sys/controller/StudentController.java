@@ -9,11 +9,14 @@ import com.example.shirodemo.model.UserModel;
 import com.example.shirodemo.model.common.CommonReturnType;
 import com.example.shirodemo.model.common.Constant;
 import com.example.shirodemo.modules.sys.service.StudentService;
+import io.swagger.annotations.Api;
 import lombok.AllArgsConstructor;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
+@Api(tags = "学员管理模块")
 @AllArgsConstructor
 @RestController
 @RequestMapping("/api/student")

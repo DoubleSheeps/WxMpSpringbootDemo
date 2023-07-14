@@ -1,5 +1,7 @@
 package com.example.shirodemo.config.shiro;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.shirodemo.Utils.JedisUtil;
 import com.example.shirodemo.Utils.JwtUtil;
 import com.example.shirodemo.Utils.StringUtil;
@@ -11,6 +13,7 @@ import com.example.shirodemo.modules.sys.dataobject.PermissionDO;
 import com.example.shirodemo.modules.sys.dataobject.RoleDO;
 import com.example.shirodemo.modules.sys.dataobject.UserDO;
 import com.example.shirodemo.model.common.Constant;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -30,6 +33,7 @@ import java.util.List;
  * @date 2018/8/30 14:10
  */
 @Service
+@Slf4j
 public class UserRealm extends AuthorizingRealm {
 
     private final UserDOMapper userMapper;
@@ -90,9 +94,17 @@ public class UserRealm extends AuthorizingRealm {
             throw new AuthenticationException("Token中帐号为空(The account in Token is empty.)");
         }
         // 查询用户是否存在
-        UserDO userDO = userMapper.selectByAccount(account);
+        LambdaQueryWrapper<UserDO> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(UserDO::getAccount,account);
+        UserDO userDO = userMapper.selectOne(queryWrapper);
         if (userDO == null) {
             throw new AuthenticationException("该帐号不存在(The account does not exist.)");
+        }
+        UserDO userDO1 = userMapper.selectById(userDO.getUid());
+        if (userDO1 == null) {
+            throw new AuthenticationException("该帐号不存在(The account does not exist.)");
+        }else {
+            log.debug("## 用户存在，返回名字为【{}】的AuthenticationInfo认证信息",userDO1);
         }
         // 开始认证，要AccessToken认证通过，且Redis中存在RefreshToken，且两个Token时间戳一致
         if (JwtUtil.verify(token) && JedisUtil.exists(Constant.PREFIX_SHIRO_REFRESH_TOKEN + account)) {
@@ -113,7 +125,9 @@ public class UserRealm extends AuthorizingRealm {
      */
 
     public void clearAuthCacheByUserId(Integer id){
-        UserDO userDO = userMapper.selectByPrimaryKey(id);
+//        LambdaQueryWrapper<UserDO> queryWrapper = new LambdaQueryWrapper<>();
+//        queryWrapper.eq(UserDO::getUid,id);
+        UserDO userDO = userMapper.selectById(id);
         if(userDO!=null){
             if (JedisUtil.exists(Constant.PREFIX_SHIRO_REFRESH_TOKEN + userDO.getAccount())) {
                 JedisUtil.delKey(Constant.PREFIX_SHIRO_REFRESH_TOKEN + userDO.getAccount());
